@@ -5,6 +5,7 @@ import storeServices from "../../Services/StoreServices";
 import { PhoneModel } from "../../Models/phone-model";
 import { Button, Card, Container, Row } from "react-bootstrap";
 import undefineImage from "../../Assets/undefine-card-img.jpg";
+import { message } from "antd";
 
 const TopThreeProducts = () => {
   const [topThree, setTopThree] = useState<PhoneModel[]>([]);
@@ -13,9 +14,13 @@ const TopThreeProducts = () => {
   useEffect(() => {
     setIsLoading(true);
     const getTopThree = async () => {
-      const topThree = await storeServices.getTopThreeProducts();
-      setTopThree(topThree);
-      setIsLoading(false);
+      try {
+        const topThree = await storeServices.getTopThreeProducts();
+        setTopThree(topThree);
+        setIsLoading(false);
+      } catch (err: any) {
+        message.error(err.message);
+      }
     };
 
     getTopThree();

@@ -5,6 +5,7 @@ import storeServices from "../../Services/StoreServices";
 import { BrandModel } from "../../Models/brand-model";
 import { Button, Card, Container, Row } from "react-bootstrap";
 import undefineImage from "../../Assets/undefine-card-img.jpg";
+import { message } from "antd";
 
 const TopBrands = () => {
   const [topBrands, setTopBrands] = useState<BrandModel[]>([]);
@@ -13,9 +14,13 @@ const TopBrands = () => {
   useEffect(() => {
     setIsLoading(true);
     const getTopBrands = async () => {
-      const topBrands = await storeServices.getTopBrands();
-      setTopBrands(topBrands);
-      setIsLoading(false);
+      try {
+        const topBrands = await storeServices.getTopBrands();
+        setTopBrands(topBrands);
+        setIsLoading(false);
+      } catch (err: any) {
+        message.error(err.message);
+      }
     };
 
     getTopBrands();
