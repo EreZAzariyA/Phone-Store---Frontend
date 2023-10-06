@@ -34,14 +34,12 @@ const storeSlicer = createSlice({
     },
     updatePhoneAction(state, action) {
       const phoneIndex = state.phones.findIndex((phone) => phone._id === action.payload._id);
-      state.phones.splice(phoneIndex, 1);
-      state.phones.push(action.payload);
+      state.phones[phoneIndex] = action.payload;
       return state;
     },
     updateBrandAction(state, action) {
       const brandIndex = state.brands.findIndex((brand) => brand._id === action.payload._id);
-      state.brands.splice(brandIndex, 1);
-      state.brands.push(action.payload);
+      state.brands[brandIndex] = action.payload;
       return state;
     },
     removePhoneAction(state, action) {

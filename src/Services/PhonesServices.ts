@@ -12,17 +12,6 @@ class PhonesServices {
     return phones;
   };
 
-  async getOnePhoneById(phoneId: string): Promise<PhoneModel> {
-    if (store.getState().store.phones.length === 0) {
-      const response = await axios.get<PhoneModel>(config.urls.phones + phoneId);
-      const phone = response.data;
-      return phone;
-    } else {
-      const phone = store.getState().store.phones.find(phone => phone._id === phoneId);
-      return phone;
-    }
-  };
-
   async getPhonesByBrandId(brand_id: string): Promise<PhoneModel[]> {
     if (store.getState().store.phones.length === 0) {
       const response = await axios.get<PhoneModel[]>(config.urls.phones + "phones-by-brand_id/" + brand_id);

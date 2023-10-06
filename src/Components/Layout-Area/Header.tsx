@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/Store";
 import AdminPanel from "./AdminPanel";
-import notifyService from "../../Services/NotifyService";
 import UserModel from "../../Models/user-model";
 import Role from "../../Models/role";
 import { authServices } from "../../Services/AuthServices";
@@ -14,16 +13,36 @@ import DropdownMenu from "react-bootstrap/esm/DropdownMenu";
 import { AiOutlineSetting } from "react-icons/ai";
 import { FiShoppingCart } from "react-icons/fi";
 import { BiUser } from "react-icons/bi";
+import phonesServices from "../../Services/PhonesServices";
+import brandsServices from "../../Services/BrandsServices";
+import shoppingCartServices from "../../Services/ShoppingCartsServices";
+import { message } from "antd";
 
 export const logout = async () => {
   await authServices.logout();
-  notifyService.error("Your out...");
+  message.error("Your out...");
 };
 
 const Header = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [show, setShow] = useState(false);
   const orders = [];
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        await phonesServices.getAllPhones();
+        await brandsServices.getAllBrands();
+        if (user && user.roleId !== Role.Admin) {
+          await shoppingCartServices.getShoppingCartByUserId(user._id);
+        }
+      } catch (err: any) {
+        message.error("Some error while trying to collect data. reason: ", err.message);
+      }
+    };
+
+    getData();
+  }, [user]);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);

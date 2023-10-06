@@ -1,98 +1,82 @@
-import { useCallback, useEffect, useState } from "react";
-import { Button, Card, Col, InputGroup, Row } from "react-bootstrap"
-import { numberWithCommas } from "../..";
+import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../Redux/Store";
 import ItemInCartModel from "../../Models/item-in-cart model"
-import { PhoneModel } from "../../Models/phone-model";
-import notifyService from "../../Services/NotifyService";
-import phonesServices from "../../Services/PhonesServices";
 import shoppingCartServices from "../../Services/ShoppingCartsServices";
-import store from "../../Redux/Store";
+import { numberWithCommas } from "../../Utils/helpers";
+import { Popconfirm, message } from "antd";
+import { Button, Card, Col, InputGroup, Row } from "react-bootstrap"
 
 interface ItemInCartCardProps {
   itemInCart: ItemInCartModel;
-}
+};
 
 const ItemInCartCard = (props: ItemInCartCardProps) => {
-  const [phone, setPhone] = useState<PhoneModel>();
-  const [stock, setStock] = useState(0);
+  const shoppingCart = useSelector((state: RootState) => state.shoppingCart);
+  const phones = useSelector((state: RootState) => state.store.phones);
+  const phone = phones?.find((p) => p._id === props.itemInCart.phone_id);
+  const [stock, setStock] = useState(props.itemInCart.amount || 0);
 
-  const getPhoneByItemId = useCallback(async () => {
-    const phone = await phonesServices.getOnePhoneById(props.itemInCart.phone_id);
-    setPhone(phone);
-  }, [props.itemInCart]);
-
-  useEffect(() => {
-    getPhoneByItemId();
-    setStock(props.itemInCart?.amount);
-  }, [getPhoneByItemId, props.itemInCart]);
-
-  const deleteFromCart = async () => {
-    const q = window.confirm("Are you sure?");
-    if (!q) {
+  const handleBtn = async (name: string) => {
+    if (!shoppingCart._id) {
+      message.error('Some error with your cart, please try to reload the page');
       return;
     }
-    const user = store.getState().auth.user;
+
+    let msg = 'stock updated...';
+    let phoneToUpdate = new ItemInCartModel(props.itemInCart);
+    phoneToUpdate.cart_id = shoppingCart._id;
+    let amount = 0;
+
+    switch(name) {
+      case 'minus':
+        if (stock === 1) return;
+        amount = stock - 1;
+        phoneToUpdate.amount = amount;
+      break;
+      case 'plus':
+        amount = stock + 1;
+        phoneToUpdate.amount = amount;
+      break;
+    }
+
     try {
-      if (user) {
-        await shoppingCartServices.removePhoneFromCart(props.itemInCart.phone_id, props.itemInCart.cart_id);
-        notifyService.error('Removed...');
-      }
-      // else {
-      //   store.dispatch(removeItemFromGuestCartAction(props.itemInCart._id));
-      // }
+      phoneToUpdate.total_price = amount * (phone.price || 0);
+      await shoppingCartServices.updateStockInCart(phoneToUpdate);
+      setStock(amount);
+      message.success(msg);
     } catch (err: any) {
-      notifyService.error(err);
+      message.error(err.message);
+      console.log(err);
     }
   };
 
-  const plus = async () => {
-    // if (stock === 9) {
-    //   return;
-    // } else {
-    //   try {
-    //     setStock(stock + 1);
-    //     const itemPlus = new ItemInCartModel();
-    //     itemPlus.cartId = props.itemInCart.cartId;
-    //     itemPlus_id = props.itemInCart_id;
-    //     itemPlus.stock = stock + 1;
-    //     itemPlus.totalPrice = (stock + 1) * phone?.price;
-    //     await shoppingCartServices.updateStockInCart(itemPlus);
-    //     notifyService.success('updated....');
-    //   } catch (err: any) {
-    //     notifyService.error(err);
-    //   }
-    // }
+  const handleRemove = async () => {
+    try {
+      await shoppingCartServices.removePhoneFromCart(props.itemInCart.phone_id, shoppingCart._id);
+      message.success('Removed from cart');
+    } catch (err: any) {
+      message.error(err.message);
+    }
   };
 
-  const minus = async () => {
-        // if (stock === 1) {
-        //       return;
-        // } else {
-        //       try {
-        //             setStock(stock - 1);
-        //             const itemPlus = new ItemInCartModel();
-        //             itemPlus.cartId = props.itemInCart.cartId;
-        //             itemPlus_id = props.itemInCart_id;
-        //             itemPlus.stock = stock - 1;
-        //             itemPlus.totalPrice = props.itemInCart.stock * phone?.price;
-        //             await shoppingCartServices.updateStockInCart(itemPlus);
-        //             notifyService.success('updated....');
-        //       } catch (err: any) {
-        //             notifyService.error(err);
-        //       }
-        // }
-  }
-
   return (
-    <Card className="m-auto text-decoration-none mb-3" style={{ width: '15rem' }} hidden={!phone}>
-      <Button
-        size='sm'
-        variant="danger"
-        style={{ position: 'absolute', right: '5px', top: '5px' }}
-        onClick={deleteFromCart}
+    <Card
+      style={{ width: '15rem' }}
+      className="m-1 p-1 text-decoration-none mb-3"
+    >
+      <Popconfirm
+        title="Are you sure?"
+        onConfirm={handleRemove}
       >
-        -
-      </Button>
+        <Button
+          size='sm'
+          variant="danger"
+          style={{ position: 'absolute', right: '4px', top: '4px' }}
+        >
+          -
+        </Button>
+      </Popconfirm>
 
       <Card.Img variant="top" src={phone?.picture} alt='' />
 
@@ -102,37 +86,33 @@ const ItemInCartCard = (props: ItemInCartCardProps) => {
         </Card.Title>
 
         <Card.Text className="text-muted mt-3 text-decoration-underline" as={Row}>
-          {stock === 1 ?
-                <>
-                      <Col xs='8'>
-                            {'$' + numberWithCommas(phone?.price)}
-                      </Col>
-                      <Col xs='4'>
-                            x1
-                      </Col>
-                </>
-                :
-                <>
-                      <Col xs='8'>
-                            {'$' + numberWithCommas(stock * phone?.price)}
-                      </Col>
-                      <Col xs='4'>
-                            {'x' + stock}
-                      </Col>
-                </>
-          }
+          {stock === 1 ? (
+            <>
+              <Col xs='8'>
+                {'$' + numberWithCommas(phone?.price)}
+              </Col>
+              <Col xs='4'>
+                x1
+              </Col>
+            </>
+           ) : (
+            <>
+              <Col xs='8'>
+                {'$' + numberWithCommas(stock * phone?.price)}
+              </Col>
+              <Col xs='4'>
+                {'x' + stock}
+              </Col>
+            </>
+          )}
         </Card.Text>
 
         <InputGroup size="sm" className="justify-content-center mt-3">
-          <Button variant="dark" onClick={plus} disabled={stock === 9}>
+          <Button variant="dark" onClick={() => handleBtn('plus')} disabled={stock === 9}>
             +
           </Button>
-
-          <InputGroup.Text>
-            {stock}
-          </InputGroup.Text>
-
-          <Button variant="dark" onClick={minus} disabled={stock === 1}>
+          <InputGroup.Text>{stock}</InputGroup.Text>
+          <Button variant="dark" onClick={() => handleBtn('minus')} disabled={stock === 1}>
             -
           </Button>
         </InputGroup>

@@ -14,7 +14,14 @@ const AdminPanel = (props: AdminPanelProps) => {
           Admin Panel
         </Offcanvas.Title>
 
-        <Button size='sm' onClick={logout} variant='danger'>
+        <Button
+          size='sm'
+          variant='danger'
+          onClick={() => {
+            logout();
+            props.handleClose();
+          }}
+        >
           Logout
         </Button>
       </Offcanvas.Header>

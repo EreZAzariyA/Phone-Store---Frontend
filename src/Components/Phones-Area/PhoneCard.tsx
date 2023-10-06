@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { PhoneModel } from "../../Models/phone-model"
 import { Button, Card, Carousel, Image, Row } from "react-bootstrap";
+import undefineImage from "../../Assets/undefine-card-img.jpg";
 
 interface PhoneCardProps {
   phone: PhoneModel;
@@ -8,17 +9,25 @@ interface PhoneCardProps {
 
 const PhoneCard = (props: PhoneCardProps) => {
   return (
-    <Card style={{ width: '15rem' }} className='m-1'>
-      <Card.Img variant='top' as='div'>
-        <Carousel variant="dark">
-          <Carousel.Item>
-            <Image height='200' width={220} src={props.phone.picture} alt={props.phone.name + ' imageURL'} />
-          </Carousel.Item>
-          <Carousel.Item>
-            <Image height='200' width={220} src={props.phone.picture} alt={props.phone.name + ' imageURL'} />
-          </Carousel.Item>
-        </Carousel>
-      </Card.Img>
+    <Card
+      style={{ width: '15rem' }}
+      className="m-1 p-1 w-auto text-decoration-none mb-3"
+    >
+      {!props.phone?.picture ? (
+        <Image src={undefineImage} height='200' alt={"undefine image"} />
+      ) : (
+        <div style={{ width: '200px'}}>
+          <Carousel variant="dark">
+            <Carousel.Item className="mr-2">
+              <Card.Img src={props.phone?.picture} height='200' alt={`${props.phone?.name + 'ImageURL'}`} />
+            </Carousel.Item>
+            <Carousel.Item className="mr-2">
+              <Card.Img src={props.phone?.picture} height='200' alt={`${props.phone?.name + 'ImageURL'}`} />
+            </Carousel.Item>
+          </Carousel>
+        </div>
+      )}
+      {/* <Card.Img src={props.phone.picture} alt={`${props.phone.name}-image`}/> */}
 
       <Card.Title>
         {props.phone?.name}

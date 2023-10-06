@@ -1,47 +1,36 @@
-import { useState } from "react";
-import { Button, Col, Container, Row, Spinner } from "react-bootstrap"
 import { NavLink } from "react-router-dom";
-import ItemInCartModel from "../../Models/item-in-cart model";
 import LastOrder from "../OrdersArea/LastOrderToast";
 import ItemInCartCard from "./ItemInCartCard";
 import { useSelector } from "react-redux";
-import store, { RootState } from "../../Redux/Store";
+import { RootState } from "../../Redux/Store";
+import { Button, Col, Row, Space, Spin } from "antd";
 
 const CartPage = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
-  const [itemsInCart, setItemsInCart] = useState<ItemInCartModel[]>();
-  const orders = []
+  const itemsInCart = useSelector((state: RootState) => state.shoppingCart.products);
+  const orders = [];
 
   return (
-    <Container>
+    <Space direction="vertical" style={{ width: '100%' }}>
       <h1>Your-Cart</h1>
-      {/* When items loaded */}
-      {itemsInCart === undefined &&
-        <Spinner animation="border" role="status" className="p-4 m-4 me-auto">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-      }
+      {itemsInCart === undefined && <Spin />}
+      {itemsInCart.length === 0 && <h4>Cart Is Empty</h4>}
 
-      {/* If there is no items */}
-      {itemsInCart?.length === 0 && <h4>Cart Is Empty</h4>}
-
-      {/* Mapping the items */}
-      <Row className="m-auto justify-content-center">
-        {orders?.length > 0 &&
-          <Col md='4'>
+      <Row align={'middle'} justify={'center'}>
+        <Col>
+          {orders.length > 0 && (
             <>
-              <h5>You have {orders?.length} order`s on the way</h5>
-              {orders?.map(order =>
-                <LastOrder key={order?.orderId} order={order} />
+              <h5>You have {orders.length} order`s on the way</h5>
+              {orders.map(order =>
+                <LastOrder key={order.orderId} order={order} />
               )}
             </>
-          </Col>
-        }
+          )}
+        </Col>
 
-        <Col className="m-auto">
-          <Row>
-            {itemsInCart?.map(itemInCart => (
-              <ItemInCartCard key={itemInCart?.phone_id} itemInCart={itemInCart} />
+        <Col>
+          <Row className="m-auto d-flex justify-content-center">
+            {itemsInCart.map((itemInCart) => (
+              <ItemInCartCard key={itemInCart.phone_id} itemInCart={itemInCart} />
             ))}
           </Row>
         </Col>
@@ -52,7 +41,7 @@ const CartPage = () => {
           Continue To Order
         </Button>
       </NavLink>
-    </Container>
+    </Space>
   );
 };
 

@@ -1,48 +1,43 @@
 import { createSlice } from "@reduxjs/toolkit";
 import ItemInCartModel from "../../Models/item-in-cart model";
 
-interface InitialState {
-  _id: string;
-  user_id: string;
-  createDate: Date;
-  phones: ItemInCartModel[];
+class InitialState {
+  public _id: string = null;
+  public user_id: string = null;
+  public createDate: Date = null;
+  public products: ItemInCartModel[] = [];
 };
 
-class initialState implements InitialState {
-  _id: string = null;
-  user_id: string = null;
-  createDate: Date = null;
-  phones: ItemInCartModel[] = [];
-};
+const initialState = new InitialState();
 
 const shoppingCartSlicer = createSlice({
   name: 'shopping_cart',
-  initialState: {...new initialState()},
+  initialState: {...initialState},
   reducers: {
     fetchShoppingCartAction(state, action) {
-      state.phones = action.payload;
+      state = action.payload;
       return state;
     },
     removeShoppingCartAction(state) {
-      state.phones = [];
+      state = {...initialState};
       return state;
     },
     addProductToCartAction(state, action) {
-      state.phones.push(action.payload);
+      state.products.push(action.payload);
       return state;
     },
     updateProductInCartAction(state, action) {
-      const phoneIndex = state.phones.findIndex((phone) => phone.phone_id === action.payload.product_id);
-      state.phones[phoneIndex] = action.payload;
+      const phoneIndex = state.products.findIndex((phone) => phone.phone_id === action.payload.phone_id);
+      state.products[phoneIndex] = action.payload;
       return state;
     },
     removeProductFromCartAction(state, action) {
-      const index = state.phones.findIndex((phone) => phone.phone_id === action.payload);
-      state.phones.splice(index, 1);
+      const index = state.products.findIndex((phone) => phone.phone_id === action.payload);
+      state.products.splice(index, 1);
       return state;
     },
     resetCartAction(state) {
-      state.phones = [];
+      state.products = [];
       return state;
     },
   }

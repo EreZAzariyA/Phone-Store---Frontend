@@ -81,7 +81,6 @@ const BrandsArea = () => {
                   </div>
                 </div>
               )}
-
               <Meta title={brand.brand} />
 
               <NavLink to={`/brands/${brand._id}`}>

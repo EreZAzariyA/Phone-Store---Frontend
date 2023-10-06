@@ -1,10 +1,9 @@
 import axios from "axios";
+import config from "../Utils/Config";
+import store from "../Redux/Store";
 import ItemInCartModel from "../Models/item-in-cart model";
 import ShoppingCartModel from "../Models/shopping-cart model";
 import { addProductToCartAction, fetchShoppingCartAction, removeProductFromCartAction, updateProductInCartAction} from "../Redux/slicers/shopping-cart-slicer";
-import config from "../Utils/Config";
-import store from "../Redux/Store";
-import { addProductToGuestCartAction, removeProductFromGuestCartAction, updateProductInGuestCartAction } from "../Redux/slicers/guest-slicer";
 
 class ShoppingCartsServices {
   public async getShoppingCartByUserId(userId: string): Promise<ShoppingCartModel> {
@@ -21,36 +20,28 @@ class ShoppingCartsServices {
   };
 
   public async addItemIntoShoppingCart(itemToAdd: ItemInCartModel): Promise<ItemInCartModel> {
-    if (store.getState().auth.user) {
-      const response = await axios.post<ItemInCartModel>(config.urls.shopping_carts.add_item_to_cart, itemToAdd);
-      const addedItem = response.data;
-      store.dispatch(addProductToCartAction(itemToAdd));
+    const response = await axios.post<ShoppingCartModel>(config.urls.shopping_carts.add_item_to_cart, itemToAdd);
+    const updatedCart = response.data;
+    if (updatedCart) {
+      const addedItem = updatedCart.products.find((phone) => phone.phone_id === itemToAdd.phone_id)
+      store.dispatch(addProductToCartAction(addedItem));
       return addedItem;
-    } else {
-      store.dispatch(addProductToGuestCartAction(itemToAdd));
-      return itemToAdd;
     }
   };
 
   public async updateStockInCart(phoneToUpdate: ItemInCartModel): Promise<ItemInCartModel> {
-    if (store.getState().auth.user) {
-      const response = await axios.patch<ItemInCartModel>(config.urls.shopping_carts.update, phoneToUpdate);
-      const updatedItem = response.data;
-      store.dispatch(updateProductInCartAction(updatedItem));
-      return updatedItem;
-    } else {
-      store.dispatch(updateProductInGuestCartAction(phoneToUpdate));
-      return phoneToUpdate;
+    const response = await axios.patch<ShoppingCartModel>(config.urls.shopping_carts.update, phoneToUpdate);
+    const updatedCart = response.data;
+    if (updatedCart) {
+      const updatedProduct = updatedCart.products.find((phone) => phone.phone_id === phoneToUpdate.phone_id);
+      store.dispatch(updateProductInCartAction(updatedProduct));
+      return updatedProduct;
     }
   };
 
   public async removePhoneFromCart(phoneIdToRemove: string, cartId: string): Promise<void> {
-    if (store.getState().auth.user) {
-      await axios.delete(config.urls.shopping_carts.remove + phoneIdToRemove + "/" + cartId);
-      store.dispatch(removeProductFromCartAction(phoneIdToRemove));
-    } else {
-      store.dispatch(removeProductFromGuestCartAction(phoneIdToRemove));
-    }
+    await axios.delete(config.urls.shopping_carts.remove + phoneIdToRemove + "/" + cartId);
+    store.dispatch(removeProductFromCartAction(phoneIdToRemove));
   };
 };
 const shoppingCartServices = new ShoppingCartsServices();

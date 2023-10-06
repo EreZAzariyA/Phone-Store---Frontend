@@ -1,10 +1,10 @@
-import { PhoneModel } from "./phone-model";
+import ItemInCartModel from "./item-in-cart model";
 
 class ShoppingCartModel {
   _id: string;
   user_id: string;
   createDate: Date;
-  phones: PhoneModel[]
+  products: ItemInCartModel[];
 };
 
 export default ShoppingCartModel;

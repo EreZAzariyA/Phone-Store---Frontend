@@ -1,61 +1,57 @@
-import { useCallback, useEffect, useState } from "react";
-import { Button, Card, Col, Container, FloatingLabel, Form, Row, Spinner, Table } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { NavLink, useNavigate } from "react-router-dom";
-import { numberWithCommas } from "../..";
-import ItemInCartModel from "../../Models/item-in-cart model";
+import { RootState } from "../../Redux/Store";
 import OrderModel from "../../Models/order-model";
+import OrderConfirm from "./OrderConfirmModal";
 import notifyService from "../../Services/NotifyService";
 import ordersServices from "../../Services/OrdersServices";
 import { errStyle } from "../Auth-Area/Register";
-import OrderConfirm from "./OrderConfirmModal";
-import store, { RootState } from "../../Redux/Store";
-import { useSelector } from "react-redux";
+import { numberWithCommas } from "../../Utils/helpers";
+import { Button, Card, Col, Container, FloatingLabel, Form, Row, Spinner, Table } from "react-bootstrap";
 
 const colStyle: React.CSSProperties = {
   textAlign: 'center',
   backgroundColor: 'white',
   borderRadius: '10px',
   margin: '5px'
-}
+};
+
+const shipmentCost = 50;
 
 const OrderPage = () => {
-  const { register, handleSubmit, formState, setValue } = useForm<OrderModel>();
+  const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.auth.user);
+  const phones = useSelector((state: RootState) => state.store.phones);
+  const itemsInCart = useSelector((state: RootState) => state.shoppingCart.products);
+  const { register, handleSubmit, formState, setValue } = useForm<OrderModel>();
+
+  const [order, setOrder] = useState<OrderModel>();
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [inCreditCard, setInCreditCard] = useState(false);
+  const [show, setShow] = useState(false);
+
+  const isGuest = !user ? true : false;
   if (user) {
     setValue('email', user.email);
     setValue('fullName', user.first_name + " " + user.last_name);
   }
 
-  const isGuest = !user ? true : false;
-  const [order, setOrder] = useState<OrderModel>();
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [inCreditCard, setInCreditCard] = useState(false);
-  const itemsInCart = useSelector((state: RootState) => state.shoppingCart.phones);
-  const [show, setShow] = useState(false);
-  const navigate = useNavigate();
-
-  const handleClose = () => {
-    const q = window.confirm('Are you sure?');
-    if (q) {
-      setShow(false);
-      navigate('/');
-    }
-  };
-
-  const handleShow = () => setShow(true);
-
-  const getTotalPrice = useCallback(() => {
-    let sum: number = 0;
-    itemsInCart?.forEach(item => {
-      sum += item?.totalPrice;
-    });
-    setTotalPrice(sum);
-  }, [itemsInCart]);
-
   useEffect(() => {
-    getTotalPrice();
-  }, [getTotalPrice]);
+    const calculateTotalPrice = () => {
+      let sum = 0;
+      itemsInCart.forEach((item) => {
+        sum += item.total_price;
+      });
+      return sum;
+    };
+
+    if (itemsInCart) {
+      const sum = calculateTotalPrice();
+      setTotalPrice(sum);
+    }
+  }, [itemsInCart]);
 
   const submit = async (orderToSet: OrderModel) => {
     handleShow();
@@ -69,14 +65,22 @@ const OrderPage = () => {
   };
 
   const getProductByItemId = (itemId: string) => {
-    const products = store.getState().store.phones;
-    const product = products?.find(p => p._id === itemId);
-    return product;
+    const phone = phones.find((phone) => phone._id === itemId);
+    return phone;
   };
 
+  const handleClose = () => {
+    const q = window.confirm('Are you sure?');
+    if (q) {
+      setShow(false);
+      navigate('/');
+    }
+  };
+
+  const handleShow = () => setShow(true);
+
   return (
-    <Container>
-      {/* Back Button */}
+    <Container fluid>
       <Row>
         <Col>
           <NavLink to='/cart' className="float-start">
@@ -85,10 +89,8 @@ const OrderPage = () => {
         </Col>
       </Row>
 
-      {/* Check-out & Summery */}
       <Row className="mt-2 p-3 flex-md-nowrap justify-content-center">
-        {/* Form */}
-        <Col md='8' lg='8' xl='8' style={colStyle}>
+        <Col md={8} style={colStyle}>
           <Form onSubmit={handleSubmit(submit)}>
             <h1>CHECKOUT</h1>
             <Form.Text style={{ textAlign: 'justify' }} as='h6'>
@@ -326,31 +328,35 @@ const OrderPage = () => {
         </Col>
 
         {/* Products List */}
-        <Col md='4' lg='4' xl='4' style={colStyle}>
+        <Col md={4} style={colStyle}>
           <h1>Summery</h1>
           <br />
           {itemsInCart === undefined && <Spinner animation="border" />}
-          {itemsInCart?.map(i =>
-            <Card key={i.phone_id} className='m-1'>
-              <Row className="flex-md-nowrap w-100">
-                <Col md='5'>
-                  <Card.Img src={getProductByItemId(i?.phone_id)?.picture} width='100' alt='' />
-                </Col>
-                <Col md='7'>
-                  <Card.Title>
-                    {getProductByItemId(i?.phone_id)?.name}
-                  </Card.Title>
-                  <Card.Text className="text-muted">
-                    {'$' + numberWithCommas(getProductByItemId(i?.phone_id)?.price) + ' x ' + i?.totalPrice}
-                    <br />
-                    <span className="text-decoration-underline">
-                      {'$' + numberWithCommas(getProductByItemId(i?.phone_id)?.price * i?.totalPrice)}
-                    </span>
-                  </Card.Text>
-                </Col>
-              </Row>
-            </Card>
-          )}
+          <Row className="flex-sm-nowrap justify-content-center">
+            {itemsInCart.map((i) =>
+              <Col md='12' sm='6' key={i.phone_id}>
+                <Card className='m-1 p-1 w-auto text-decoration-none mb-3'>
+                  <Row>
+                    <Col md='5' sm='12'>
+                      <Card.Img src={getProductByItemId(i?.phone_id)?.picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt='' />
+                    </Col>
+                    <Col md='7' sm='12'>
+                      <Card.Title>
+                        {getProductByItemId(i?.phone_id)?.name}
+                      </Card.Title>
+                      <Card.Text className="text-muted">
+                        {`${numberWithCommas(getProductByItemId(i?.phone_id)?.price) + '$'} x ${i?.amount}`}
+                        <br />
+                        <span className="text-decoration-underline">
+                          {numberWithCommas(getProductByItemId(i?.phone_id)?.price * i?.amount) + '$'}
+                        </span>
+                      </Card.Text>
+                    </Col>
+                  </Row>
+                </Card>
+              </Col>
+            )}
+          </Row>
           <Table variant="light" hover striped className="mt-2">
             <tbody>
               <tr>
@@ -358,7 +364,7 @@ const OrderPage = () => {
                   Total
                 </td>
                 <th>
-                  {numberWithCommas(totalPrice + 50) + '$'}
+                  {numberWithCommas(totalPrice + shipmentCost) + '$'}
                 </th>
               </tr>
               <tr>
@@ -366,7 +372,7 @@ const OrderPage = () => {
                   Shipping (Included)
                 </td>
                 <th>
-                  50$
+                  {shipmentCost}$
                 </th>
               </tr>
               <tr>
