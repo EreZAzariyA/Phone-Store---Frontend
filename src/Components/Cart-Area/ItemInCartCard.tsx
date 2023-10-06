@@ -3,9 +3,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/Store";
 import ItemInCartModel from "../../Models/item-in-cart model"
 import shoppingCartServices from "../../Services/ShoppingCartsServices";
-import { numberWithCommas } from "../../Utils/helpers";
 import { Popconfirm, message } from "antd";
 import { Button, Card, Col, InputGroup, Row } from "react-bootstrap"
+import { asPriceNum } from "../../Utils/helpers";
 
 interface ItemInCartCardProps {
   itemInCart: ItemInCartModel;
@@ -86,25 +86,22 @@ const ItemInCartCard = (props: ItemInCartCardProps) => {
         </Card.Title>
 
         <Card.Text className="text-muted mt-3 text-decoration-underline" as={Row}>
-          {stock === 1 ? (
+          {stock !== 1 && (
             <>
               <Col xs='8'>
-                {'$' + numberWithCommas(phone?.price)}
+                {'$' + asPriceNum(phone?.price)}
               </Col>
               <Col xs='4'>
                 x1
               </Col>
             </>
-           ) : (
-            <>
-              <Col xs='8'>
-                {'$' + numberWithCommas(stock * phone?.price)}
-              </Col>
-              <Col xs='4'>
-                {'x' + stock}
-              </Col>
-            </>
-          )}
+           )}
+          <Col xs='8'>
+            {'$' + asPriceNum(stock * phone?.price)}
+          </Col>
+          <Col xs='4'>
+            {'x' + stock}
+          </Col>
         </Card.Text>
 
         <InputGroup size="sm" className="justify-content-center mt-3">

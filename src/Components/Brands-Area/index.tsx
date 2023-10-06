@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { RootState } from "../../Redux/Store";
 import { FcNext } from "react-icons/fc";
 import Role from "../../Models/role";
@@ -22,6 +22,7 @@ const steps = {
 };
 
 const BrandsArea = () => {
+  const navigate = useNavigate();
   const brands = useSelector((state: RootState) => state.store.brands);
   const user = useSelector((state: RootState) => state.auth.user);
   const [brand, setBrand] = useState<BrandModel>(null);
@@ -58,6 +59,7 @@ const BrandsArea = () => {
               hoverable
               className="m-1"
               cover={<img src={brand.img} alt={`${brand.brand}-img`} />}
+              onClick={() => navigate(`/brands/${brand._id}`)}
             >
               {(user && user.roleId === Role.Admin) && (
                 <div className="d-flex justify-content-end btn-toolbar admin-buttons">
@@ -83,11 +85,9 @@ const BrandsArea = () => {
               )}
               <Meta title={brand.brand} />
 
-              <NavLink to={`/brands/${brand._id}`}>
-                <Button className="mt-3" variant="light">
-                  Shop <FcNext />
-                </Button>
-              </NavLink>
+              <Button className="mt-3" variant="light">
+                Shop <FcNext />
+              </Button>
             </Card>
           )}
         </Row>

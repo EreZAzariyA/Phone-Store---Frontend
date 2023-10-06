@@ -8,8 +8,8 @@ import OrderConfirm from "./OrderConfirmModal";
 import notifyService from "../../Services/NotifyService";
 import ordersServices from "../../Services/OrdersServices";
 import { errStyle } from "../Auth-Area/Register";
-import { numberWithCommas } from "../../Utils/helpers";
 import { Button, Card, Col, Container, FloatingLabel, Form, Row, Spinner, Table } from "react-bootstrap";
+import { asPriceNum } from "../../Utils/helpers";
 
 const colStyle: React.CSSProperties = {
   textAlign: 'center',
@@ -345,10 +345,10 @@ const OrderPage = () => {
                         {getProductByItemId(i?.phone_id)?.name}
                       </Card.Title>
                       <Card.Text className="text-muted">
-                        {`${numberWithCommas(getProductByItemId(i?.phone_id)?.price) + '$'} x ${i?.amount}`}
+                        {`${asPriceNum(getProductByItemId(i?.phone_id)?.price) + '$'} x ${i?.amount}`}
                         <br />
                         <span className="text-decoration-underline">
-                          {numberWithCommas(getProductByItemId(i?.phone_id)?.price * i?.amount) + '$'}
+                          {asPriceNum(getProductByItemId(i?.phone_id)?.price * i?.amount) + '$'}
                         </span>
                       </Card.Text>
                     </Col>
@@ -364,7 +364,7 @@ const OrderPage = () => {
                   Total
                 </td>
                 <th>
-                  {numberWithCommas(totalPrice + shipmentCost) + '$'}
+                  {asPriceNum(totalPrice + shipmentCost) + '$'}
                 </th>
               </tr>
               <tr>

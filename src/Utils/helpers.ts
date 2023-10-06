@@ -2,4 +2,8 @@ export const myLorem = 'Lorem ipsum, dolor sit amet consectetur adipisicing elit
 
 export function numberWithCommas(x: number) {
   return x?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
+};
+
+export const asPriceNum = (num: number, digits: number = 2) => {
+  return Number(num).toFixed(digits);
+};
