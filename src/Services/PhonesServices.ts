@@ -6,9 +6,13 @@ import { addNewPhoneAction, fetchPhonesAction, removePhoneAction, updatePhoneAct
 
 class PhonesServices {
   async getAllPhones(): Promise<PhoneModel[]> {
-    const response = await axios.get<PhoneModel[]>(config.urls.phones);
-    const phones = response.data;
-    store.dispatch(fetchPhonesAction(phones));
+    if (!store.getState().store.phones.length) {
+      const response = await axios.get<PhoneModel[]>(config.urls.phones);
+      const phones = response.data;
+      store.dispatch(fetchPhonesAction(phones));
+      return phones;
+    }
+    const phones = store.getState().store.phones;
     return phones;
   };
 

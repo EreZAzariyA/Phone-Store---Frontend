@@ -8,8 +8,12 @@ import shoppingCartServices from "../../Services/ShoppingCartsServices";
 import undefineImage from "../../Assets/undefine-card-img.jpg";
 import OthersPhones from "./OthersPhones";
 import { myLorem, numberWithCommas } from "../../Utils/helpers";
-import { message } from "antd";
+import { Popconfirm, message } from "antd";
 import { Button, Carousel, Col, Container, Image, InputGroup, Row } from "react-bootstrap"
+import { AiOutlineEdit } from "react-icons/ai";
+import { MdDeleteOutline } from "react-icons/md";
+import phonesServices from "../../Services/PhonesServices";
+import notifyService from "../../Services/NotifyService";
 
 const PhonePage = () => {
   const { phoneId } = useParams();
@@ -72,6 +76,21 @@ const PhonePage = () => {
       )}
     </>
   );
+
+  const handleAdminBtn = async (btnType: string): Promise<void> => {
+    try {
+      if (btnType === 'delete') {
+        await phonesServices.deletePhoneById(phoneId);
+        notifyService.success(`Brand '${phone.name}' Removed Successfully`);
+      }
+      if (btnType === 'edit') {
+        console.log('test');
+      }
+    } catch (err: any) {
+      console.log(err);
+      notifyService.error(err.message);
+    }
+  };
 
   return (
     <Container fluid>
@@ -146,6 +165,30 @@ const PhonePage = () => {
                   <AddToCartButton />
                 </Col>
               </Row>
+            )}
+            {isAdmin && (
+              <div className="d-flex justify-content-end btn-toolbar">
+                <div className="btn-group">
+                  <button
+                    className="btn btn-sm btn-secondary"
+                    onClick={() => handleAdminBtn('edit')}
+                  >
+                    Edit
+                    <AiOutlineEdit />
+                  </button>
+                  <Popconfirm
+                    title="Are you sure?"
+                    onConfirm={() => handleAdminBtn('delete')}
+                  >
+                    <button
+                      className="btn btn-sm btn-danger"
+                    >
+                      Delete
+                      <MdDeleteOutline />
+                    </button>
+                  </Popconfirm>
+                </div>
+              </div>
             )}
           </Col>
         </Row>

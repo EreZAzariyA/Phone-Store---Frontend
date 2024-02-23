@@ -13,14 +13,14 @@ import CartPage from './Components/Cart-Area/CartPage';
 import OrderPage from './Components/OrdersArea/OrderPage';
 import AboutPage from './Components/AboutArea/AboutPage';
 
-import Role from './Models/role';
 import { Container, Row } from 'react-bootstrap';
 import { AdminTopPhones } from './Components/Admin/TopPhones';
 import { AdminTopBrands } from './Components/Admin/TopBrands';
+import { isAdmin } from './Utils/helpers';
 
 function App() {
   const user = useSelector((state: RootState) => state.auth.user);
-  const store = useSelector((state: RootState) => state.store);
+  const admin = isAdmin(user);
 
   return (
     <Container fluid>
@@ -30,11 +30,11 @@ function App() {
 
       <Row>
         <Routes>
-          <Route path='/' element={<HomePage brands={store.brands} phones={store.phones} />} />
-          <Route path='/brands' element={<BrandsArea />} />
+          <Route path='/' element={<HomePage />} />
           <Route path='/phones' element={<PhonesArea />} />
-          <Route path='/brands/:brand_id' element={<BrandPage />} />
           <Route path='/phone/:phoneId' element={<PhonePage />} />
+          <Route path='/brands' element={<BrandsArea />} />
+          <Route path='/brands/:brand_id' element={<BrandPage />} />
           <Route path='/about' element={<AboutPage />} />
           
           {user && (
@@ -51,7 +51,7 @@ function App() {
           )}
 
           {/* Admin Panel */}
-          {(user && user.roleId === Role.Admin) && (
+          {(admin) && (
             <>
               <Route path='admin/top-phones' element={<AdminTopPhones />} />
               <Route path='admin/top-brands' element={<AdminTopBrands />} />
