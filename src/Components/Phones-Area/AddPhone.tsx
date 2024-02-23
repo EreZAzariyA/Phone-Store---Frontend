@@ -129,10 +129,10 @@ const AddPhone = (props: AddPhoneProps) => {
           name={'picture'}
           rules={[
             { required: true, message: "Phone picture is missing" },
-            {
-              pattern: /\.(jpg|jpeg|png|gif)$/,
-              message: 'Invalid image URL format (must end with .jpg, .jpeg, .png, or .gif)',
-            }
+            // {
+            //   pattern: /\.(jpg|jpeg|png|gif)$/,
+            //   message: 'Invalid image URL format (must end with .jpg, .jpeg, .png, or .gif)',
+            // }
           ]}
         >
           <Input type="text" />

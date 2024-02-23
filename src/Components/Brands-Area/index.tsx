@@ -27,6 +27,7 @@ const BrandsArea = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [brand, setBrand] = useState<BrandModel>(null);
   const [step, setStep] = useState(null);
+  const isAdmin = user && user.roleId === Role.Admin;
 
   const handleBtn = async (btnType: string, brand: BrandModel): Promise<void> => {
     try {
@@ -59,9 +60,8 @@ const BrandsArea = () => {
               hoverable
               className="m-1"
               cover={<img src={brand.img} alt={`${brand.brand}-img`} />}
-              onClick={() => navigate(`/brands/${brand._id}`)}
             >
-              {(user && user.roleId === Role.Admin) && (
+              {isAdmin && (
                 <div className="d-flex justify-content-end btn-toolbar admin-buttons">
                   <div className="btn-group">
                     <button
@@ -85,13 +85,17 @@ const BrandsArea = () => {
               )}
               <Meta title={brand.brand} />
 
-              <Button className="mt-3" variant="light">
-                Shop <FcNext />
+              <Button
+                className="mt-3"
+                variant="light"
+                onClick={() => navigate(`/brands/${brand._id}`)}
+              >
+                {isAdmin ? 'Check' : 'Shop'} <FcNext />
               </Button>
             </Card>
           )}
         </Row>
-        {(user && user.roleId === Role.Admin) && (
+        {isAdmin && (
           <button className="btn btn-success" onClick={() => setStep(steps.New_Brand)}>Add new brand</button>
         )}
       </>
