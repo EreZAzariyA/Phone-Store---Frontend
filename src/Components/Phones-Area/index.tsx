@@ -19,10 +19,10 @@ const steps = {
 };
 
 const PhonesArea = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
   const phones = useSelector((state: RootState) => state.store.phones);
   const [phone, setPhone] = useState<PhoneModel>(null);
   const [step, setStep] = useState(null);
+  const isAdmin = useSelector((state: RootState) => state.auth.user?.roleId === Role.Admin) || false;
 
   const handleBtn = async (btnType: string, phone: PhoneModel): Promise<void> => {
     try {
@@ -56,7 +56,7 @@ const PhonesArea = () => {
                 className="m-1"
                 cover={<img src={phone.picture} alt={`${phone.name}-img`} />}
               >
-                {(user && user.roleId === Role.Admin) && (
+                {isAdmin && (
                   <div className="d-flex justify-content-end btn-toolbar admin-buttons">
                     <div className="btn-group">
                       <button
@@ -89,60 +89,10 @@ const PhonesArea = () => {
               </Card>
             )}
           </Row>
-          {(user && user.roleId === Role.Admin) && (
+          {isAdmin && (
             <button className="btn btn-success" onClick={() => setStep(steps.New_Phone)}>Add new phone</button>
           )}
         </>
-
-
-        // <>
-        //   <h1>All Phones</h1>
-        //   <Row align={'middle'} justify={'center'} gutter={[10, 10]}>
-        //     {phones.map((phone) =>
-        //       <Card
-        //         key={phone._id}
-        //         style={{ width: '15rem' }}
-        //         hoverable
-        //         className="m-1"
-        //         cover={<img src={phone.picture} alt={`${phone.name}-img`} />}
-        //       >
-        //         {(user && user.roleId === Role.Admin) && (
-        //           <div className="d-flex justify-content-end btn-toolbar admin-buttons">
-        //             <div className="btn-group">
-        //               <button
-        //                 className="btn btn-sm btn-secondary"
-        //                 onClick={() => handleBtn('edit', phone)}
-        //               >
-        //                 <AiOutlineEdit />
-        //               </button>
-        //               <Popconfirm
-        //                 title="Are you sure?"
-        //                 onConfirm={() => handleBtn('delete', phone)}
-        //               >
-        //                 <button
-        //                   className="btn btn-sm btn-danger"
-        //                 >
-        //                   <MdDeleteOutline />
-        //                 </button>
-        //               </Popconfirm>
-        //             </div>
-        //           </div>
-        //         )}
-
-        //         <Card.Meta title={phone.price} />
-
-        //         <NavLink to={`/phones/${phone._id}`}>
-        //           <Button className="mt-3" variant="light">
-        //             Shop <FcNext />
-        //           </Button>
-        //         </NavLink>
-        //       </Card>
-        //     )}
-        //   </Row>
-        //   {(user && user.roleId === Role.Admin) && (
-        //     <button className="btn btn-success" onClick={() => setStep(steps.New_Phone)}>Add new phone</button>
-        //   )}
-        // </>
       )}
       {(step && step === steps.New_Phone) && (
         <AddPhone onBack={onBack} />

@@ -17,6 +17,7 @@ import phonesServices from "../../Services/PhonesServices";
 import brandsServices from "../../Services/BrandsServices";
 import shoppingCartServices from "../../Services/ShoppingCartsServices";
 import { message } from "antd";
+import { isAdmin } from "../../Utils/helpers";
 
 export const logout = async () => {
   await authServices.logout();
@@ -25,6 +26,7 @@ export const logout = async () => {
 
 const Header = () => {
   const user = useSelector((state: RootState) => state.auth.user);
+  const admin = isAdmin(user);
   const [show, setShow] = useState(false);
   const orders = [];
 
@@ -33,7 +35,7 @@ const Header = () => {
       try {
         await phonesServices.getAllPhones();
         await brandsServices.getAllBrands();
-        if (user && user.roleId !== Role.Admin) {
+        if (user && !admin) {
           await shoppingCartServices.getShoppingCartByUserId(user._id);
         }
       } catch (err: any) {
@@ -42,7 +44,7 @@ const Header = () => {
     };
 
     getData();
-  }, [user]);
+  }, [admin, user]);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
