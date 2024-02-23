@@ -2,12 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import { BrandModel } from '../../Models/brand-model';
 import { PhoneModel } from '../../Models/phone-model';
 
-interface InitialState {
-  phones: PhoneModel[],
-  brands: BrandModel[],
-};
-
-class initialState implements InitialState {
+class initialState {
   public phones: PhoneModel[] = [];
   public brands: BrandModel[] = [];
 };
