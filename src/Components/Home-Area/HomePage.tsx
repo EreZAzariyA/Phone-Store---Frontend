@@ -1,12 +1,13 @@
-import { Button, Card, Container, Row } from "react-bootstrap";
-
 import { NavLink } from "react-router-dom";
-import TopThreeProducts from "./TopPhones";
-import TopBrands from "./TopBrands";
-import { FcNext } from "react-icons/fc";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/Store";
+import TopThreeProducts from "./TopPhones";
+import TopBrands from "./TopBrands";
 import TopCarousel from "./TopCarousel";
+import { toUpperCase } from "../../Utils/helpers";
+import { Button, Card, Container, Row } from "react-bootstrap";
+import { FcNext } from "react-icons/fc";
+import BrandCard from "../Brands-Area/BrandCard";
 
 function HomePage(): JSX.Element {
   const store = useSelector((state: RootState) => state.store);
@@ -32,21 +33,7 @@ function HomePage(): JSX.Element {
           <h1>Our Brands</h1>
           <Row className="justify-content-center">
             {store.brands.map((brand) =>
-              <Card
-                key={brand._id}
-                style={{ width: '15rem' }}
-                className="m-1 p-1 w-auto text-decoration-none mb-3"
-              >
-                <Card.Img variant="top" height={'150'} src={brand.img} />
-
-                <Card.Body>
-                  <NavLink to={`/brands/${brand._id}`}>
-                    <Button variant="light">
-                      Shop <FcNext />
-                    </Button>
-                  </NavLink>
-                </Card.Body>
-              </Card>
+              <BrandCard key={brand._id} brand={brand} />
             )}
           </Row>
         </Container>

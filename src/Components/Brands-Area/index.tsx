@@ -1,18 +1,19 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { NavLink, useNavigate } from "react-router-dom";
 import { RootState } from "../../Redux/Store";
-import { FcNext } from "react-icons/fc";
+import { BrandModel } from "../../Models/brand-model";
 import Role from "../../Models/role";
-import { AiOutlineEdit } from "react-icons/ai";
-import { MdDeleteOutline } from "react-icons/md";
+import AddBrand from "./AddBrand";
 import notifyService from "../../Services/NotifyService";
 import brandsServices from "../../Services/BrandsServices";
+import { toUpperCase } from "../../Utils/helpers";
 import { Card, Popconfirm, Row, Space } from "antd";
 import { Button } from "react-bootstrap";
+import { FcNext } from "react-icons/fc";
+import { AiOutlineEdit } from "react-icons/ai";
+import { MdDeleteOutline } from "react-icons/md";
 import "./brands.css";
-import { useState } from "react";
-import AddBrand from "./AddBrand";
-import { BrandModel } from "../../Models/brand-model";
 
 const { Meta } = Card;
 
@@ -22,9 +23,9 @@ const steps = {
 };
 
 const BrandsArea = () => {
-  const navigate = useNavigate();
   const brands = useSelector((state: RootState) => state.store.brands);
   const user = useSelector((state: RootState) => state.auth.user);
+  const navigate = useNavigate();
   const [brand, setBrand] = useState<BrandModel>(null);
   const [step, setStep] = useState(null);
   const isAdmin = user && user.roleId === Role.Admin;
@@ -83,7 +84,7 @@ const BrandsArea = () => {
                   </div>
                 </div>
               )}
-              <Meta title={brand.brand} />
+                <Meta title={toUpperCase(brand.brand)} />
 
               <Button
                 className="mt-3"

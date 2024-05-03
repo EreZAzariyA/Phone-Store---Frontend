@@ -11,6 +11,10 @@ export const asPriceNum = (num: number, digits: number = 2) => {
   return Number(num).toFixed(digits);
 };
 
+export const toUpperCase = (str: string = '') => {
+  return str.at(0).toUpperCase() + str.slice(1);
+};
+
 export const isAdmin = (user: UserModel):Boolean => {
   return user ? user.roleId === Role.Admin : false;
 }

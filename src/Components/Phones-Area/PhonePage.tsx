@@ -14,6 +14,7 @@ import { AiOutlineEdit } from "react-icons/ai";
 import { MdDeleteOutline } from "react-icons/md";
 import phonesServices from "../../Services/PhonesServices";
 import notifyService from "../../Services/NotifyService";
+import { FcOk } from "react-icons/fc";
 
 const PhonePage = () => {
   const { phoneId } = useParams();
@@ -22,7 +23,7 @@ const PhonePage = () => {
   const phones = useSelector((state: RootState) => state.store.phones);
   const [amount, setAmount] = useState<number>(1);
   const phone = phones?.find((p) => p._id === phoneId);
-  const isInCart = shoppingCart.products?.find((phone) => phone.phone_id === phoneId);
+  const isInCart = shoppingCart?.products?.find((phone) => phone.phone_id === phoneId);
   const isAdmin = useSelector((state: RootState) => state.auth.user?.roleId === Role.Admin) || false;
 
   const plus = () => {
@@ -67,11 +68,11 @@ const PhonePage = () => {
     <>
       {!isInCart ? (
         <Button size="sm" className="p-1" variant='dark' onClick={addToCart}>
-          Add To Cart ✔
+          Add To Cart
         </Button>
       ) : (
-        <Button size="sm" className="p-1" variant='success' onClick={addToCart}>
-          In-Cart
+        <Button size="sm" className="p-1" variant='success'>
+          In-Cart <FcOk />
         </Button>
       )}
     </>
@@ -155,7 +156,7 @@ const PhonePage = () => {
                 {!isInCart && (
                   <Col>
                     <InputGroup size="sm">
-                      <Button variant="success" onClick={plus}>+</Button>
+                      <Button variant="success" onClick={plus} disabled={amount >= 10}>+</Button>
                       <InputGroup.Text>{amount}</InputGroup.Text>
                       <Button variant='danger' onClick={minus} disabled={amount === 1}>-</Button>
                     </InputGroup>
@@ -203,7 +204,7 @@ const PhonePage = () => {
               {myLorem}
             </Row>
           </Col>
-          <Col md='4'>
+          <Col md='4' className="mt-3">
             <h3 className="text-decoration-underline">In The Box</h3>
           </Col>
         </Row>

@@ -12,6 +12,7 @@ import { PhoneModel } from "../../Models/phone-model";
 import AddPhone from "./AddPhone";
 import phonesServices from "../../Services/PhonesServices";
 import notifyService from "../../Services/NotifyService";
+import { toUpperCase } from "../../Utils/helpers";
 
 const steps = {
   New_Phone: "New_Phone",
@@ -78,9 +79,7 @@ const PhonesArea = () => {
                     </div>
                   </div>
                 )}
-  
-                <Card.Meta title={phone.name} />
-  
+                <Card.Meta title={toUpperCase(phone.name)} />
                 <NavLink to={`/phones/${phone._id}`}>
                   <Button className="mt-3" variant="light">
                     Shop <FcNext />
